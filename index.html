@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelAI | Smarter CCTV. Faster Security Response.</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Google Font: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="app" class="soc-root">
+    
+    <!-- HEADER NAVBAR -->
+    <header class="soc-header">
+      <div class="header-brand">
+        <div class="shield-badge">
+          <i data-lucide="shield" class="shield-icon"></i>
+          <span class="ping-dot"></span>
+        </div>
+        <div>
+          <div class="brand-title">
+            SENTINEL<span class="text-blue">AI</span>
+            <span class="version-tag">HTML/CSS/JS ENGINE</span>
+          </div>
+          <p class="brand-sub">Smarter CCTV. Faster Security Response.</p>
+        </div>
+      </div>
+
+      <!-- NAV TABS -->
+      <nav class="soc-nav">
+        <button class="nav-btn active" data-tab="grid">
+          <i data-lucide="video"></i>
+          <span>SOC Live Grid</span>
+        </button>
+        <button class="nav-btn" data-tab="alerts">
+          <i data-lucide="bell"></i>
+          <span>Alert Center</span>
+          <span class="badge-count" id="active-alert-badge">2</span>
+        </button>
+        <button class="nav-btn" data-tab="visitors">
+          <i data-lucide="users"></i>
+          <span>Visitor Directory</span>
+        </button>
+        <button class="nav-btn" data-tab="analytics">
+          <i data-lucide="bar-chart-3"></i>
+          <span>Analytics</span>
+        </button>
+      </nav>
+
+      <!-- SYSTEM STATUS TELEMETRY -->
+      <div class="header-telemetry">
+        <div class="status-card" id="gemini-status-card">
+          <i data-lucide="sparkles" class="icon-purple"></i>
+          <div>
+            <span class="label">GEMINI LAYER</span>
+            <span class="val purple" id="gemini-status-text">AI: ONLINE</span>
+          </div>
+        </div>
+
+        <div class="status-card" id="hardware-status">
+          <i data-lucide="cpu" class="icon-amber"></i>
+          <div>
+            <span class="label">AI DEVICE</span>
+            <span class="val amber" id="ai-device-text">CPU Mode</span>
+          </div>
+        </div>
+
+        <div class="status-card" id="connection-status">
+          <i data-lucide="wifi" class="icon-emerald"></i>
+          <div>
+            <span class="label">REAL-TIME SYNC</span>
+            <span class="val emerald" id="sync-text">LIVE STANDALONE</span>
+          </div>
+        </div>
+
+        <div class="status-card clock-card">
+          <span class="label">SOC UTC CLOCK</span>
+          <span class="val clock-time" id="clock-display">00:00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT VIEW CONTAINER -->
+    <main class="soc-main">
+      
+      <!-- TAB 1: SOC LIVE GRID -->
+      <section id="tab-grid" class="tab-content active">
+        <div class="banner-bar">
+          <div class="banner-info">
+            <span class="live-dot"></span>
+            <h2>ACTIVE CCTV MONITORING GRID</h2>
+            <p>Real-time Computer Vision analyzing 4 camera streams for unauthorized presence, loitering & risk scoring.</p>
+          </div>
+          <button class="btn btn-secondary" id="btn-refresh-streams">
+            <i data-lucide="refresh-cw"></i>
+            <span>Refresh Feeds</span>
+          </button>
+        </div>
+
+        <div class="workspace-grid">
+          <!-- Live Camera Feeds Grid -->
+          <div class="camera-grid-container" id="camera-grid">
+            <!-- Camera cards rendered dynamically by JS -->
+          </div>
+
+          <!-- Real-Time Alert Sidebar Feed -->
+          <aside class="alert-sidebar">
+            <div class="sidebar-header">
+              <div class="flex-row">
+                <i data-lucide="shield-alert" class="icon-rose"></i>
+                <h3>Real-Time Alert Feed</h3>
+              </div>
+              <span class="sidebar-badge" id="pending-alert-count">2 PENDING</span>
+            </div>
+            <div class="sidebar-feed-list" id="sidebar-feed">
+              <!-- Sidebar alert items populated by JS -->
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- TAB 2: ALERT CENTER -->
+      <section id="tab-alerts" class="tab-content">
+        <div class="banner-bar">
+          <div class="banner-info">
+            <i data-lucide="bell" class="icon-rose"></i>
+            <div>
+              <h2>SECURITY ALERT CENTER & LOGS</h2>
+              <p>Triage, verify, and escalate computer-vision flagged risk incidents.</p>
+            </div>
+          </div>
+          <div class="filter-group" id="alert-filters">
+            <button class="filter-btn active" data-filter="ALL">ALL</button>
+            <button class="filter-btn" data-filter="ACTIVE">ACTIVE</button>
+            <button class="filter-btn" data-filter="LEGITIMATE">LEGITIMATE</button>
+            <button class="filter-btn" data-filter="ESCALATED">ESCALATED</button>
+          </div>
+        </div>
+
+        <div class="alert-center-layout">
+          <div class="alert-logs-list" id="alert-logs-container">
+            <!-- Log entries rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: VISITOR DIRECTORY -->
+      <section id="tab-visitors" class="tab-content">
+        <div class="banner-bar">
+          <div class="banner-info">
+            <i data-lucide="users" class="icon-blue"></i>
+            <div>
+              <h2>AUTHORIZED RESIDENT & VISITOR DIRECTORY</h2>
+              <p>Manage resident whitelist embeddings and pre-register visitor access passes.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-open-visitor-modal">
+            <i data-lucide="user-plus"></i>
+            <span>Pre-Register Visitor Pass</span>
+          </button>
+        </div>
+
+        <div class="directory-card">
+          <div class="directory-toolbar">
+            <div class="sub-tabs">
+              <button class="sub-tab active" id="subtab-residents">Authorized Residents (<span id="res-count">3</span>)</button>
+              <button class="sub-tab" id="subtab-visitors">Expected Visitors (<span id="vis-count">2</span>)</button>
+            </div>
+            <div class="search-input-wrapper">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="visitor-search" placeholder="Search by name, unit, vehicle..." class="input-field">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" id="directory-table">
+              <!-- Table headers & rows injected by JS -->
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ANALYTICS -->
+      <section id="tab-analytics" class="tab-content">
+        <div class="banner-bar">
+          <div class="banner-info">
+            <i data-lucide="bar-chart-3" class="icon-emerald"></i>
+            <div>
+              <h2>SOC SECURITY OPERATIONS ANALYTICS</h2>
+              <p>Computer vision detection metrics, 24-hour risk level trends, and false alarm metrics.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-metrics-row">
+          <div class="metric-card">
+            <span class="metric-label">AVG SECURITY RISK SCORE</span>
+            <div class="metric-val amber">42.5 / 100</div>
+            <span class="metric-sub">Normal Range (0-50 Low Context)</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">TOTAL DETECTIONS TODAY</span>
+            <div class="metric-val blue">155 Events</div>
+            <span class="metric-sub emerald">98.2% Auto-Tracked</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">HIGH PRIORITY FLAGS</span>
+            <div class="metric-val rose">8 Incidents</div>
+            <span class="metric-sub">Requires Guard Review</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">AVG RESPONSE TRIAGE TIME</span>
+            <div class="metric-val emerald">3.8 Seconds</div>
+            <span class="metric-sub emerald">Within 5-Second UX Target</span>
+          </div>
+        </div>
+
+        <div class="analytics-charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <i data-lucide="activity" class="icon-blue"></i>
+              <h3>24-Hour Contextual Risk Score Trend</h3>
+            </div>
+            <div class="chart-body" id="chart-risk-trend"></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <i data-lucide="bar-chart-3" class="icon-emerald"></i>
+              <h3>Zone Incident Distribution</h3>
+            </div>
+            <div class="chart-body" id="chart-zone-bar"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 5-SECOND UX RULE ALERT TRIAGE MODAL WITH GEMINI AI ANALYSIS -->
+    <div id="triage-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        
+        <div class="modal-header high-risk" id="modal-header-ribbon">
+          <div class="flex-row">
+            <div class="modal-icon-box">
+              <i data-lucide="shield-alert" class="modal-shield-icon"></i>
+            </div>
+            <div>
+              <div class="modal-title-row">
+                <span id="modal-risk-level-title">HIGH RISK INCIDENT TRIAGE</span>
+                <span class="score-pill" id="modal-risk-score-pill">SCORE: 85/100</span>
+              </div>
+              <p class="modal-sub">Human-in-the-Loop Protocol • Flagged for Guard Inspection</p>
+            </div>
+          </div>
+          <button class="modal-close-btn" id="btn-close-triage-modal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Quick 5-Second Summary Box -->
+          <div class="five-sec-summary-grid">
+            <div class="summary-box">
+              <i data-lucide="help-circle" class="icon-blue"></i>
+              <div>
+                <span class="sum-lbl">WHO</span>
+                <span class="sum-val" id="sum-who-val">UNRECOGNIZED</span>
+              </div>
+            </div>
+            <div class="summary-box">
+              <i data-lucide="map-pin" class="icon-amber"></i>
+              <div>
+                <span class="sum-lbl">WHERE</span>
+                <span class="sum-val" id="sum-where-val">Perimeter Fence South</span>
+              </div>
+            </div>
+            <div class="summary-box">
+              <i data-lucide="clock" class="icon-emerald"></i>
+              <div>
+                <span class="sum-lbl">WHEN / DWELL</span>
+                <span class="sum-val" id="sum-when-val">Just Now (24s)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Protocol Breakdown -->
+          <div class="protocol-sections">
+            <div class="protocol-box">
+              <div class="section-tag text-blue">
+                <i data-lucide="file-text"></i>
+                <span>WHAT HAPPENED</span>
+              </div>
+              <p class="section-desc" id="protocol-what-desc">
+                Detected unrecognized subject loitering in monitored security zone.
+              </p>
+            </div>
+
+            <div class="protocol-box">
+              <div class="section-tag text-amber">
+                <i data-lucide="alert-triangle"></i>
+                <span>WHY FLAGGED (RISK SCORING FACTORS)</span>
+              </div>
+              <ul class="reasons-list" id="protocol-reasons-list">
+                <!-- Injected by JS -->
+              </ul>
+            </div>
+
+            <div class="protocol-box action-rec-box">
+              <div class="section-tag text-emerald">
+                <i data-lucide="chevron-right"></i>
+                <span>RECOMMENDED ACTION PROTOCOL</span>
+              </div>
+              <p class="action-desc" id="protocol-action-desc">
+                Dispatch security patrol guard to check credentials and assist subject.
+              </p>
+            </div>
+
+            <!-- GEMINI AI ANALYSIS BLOCK -->
+            <div class="protocol-box ai-analysis-box" id="ai-analysis-block">
+              <div class="ai-box-header">
+                <div class="section-tag text-purple">
+                  <i data-lucide="sparkles" class="icon-purple"></i>
+                  <span>GEMINI AI INTELLIGENCE ANALYSIS</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-generate-ai">
+                  <i data-lucide="sparkles"></i> Generate AI Analysis
+                </button>
+              </div>
+              <div id="ai-analysis-content" class="ai-content-body hidden">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="notes-input-group">
+            <label>GUARD INCIDENT NOTES (OPTIONAL)</label>
+            <input type="text" id="guard-notes-input" placeholder="e.g., Verified Resident Dr. Sarah Jenkins - credentials checked OK" class="input-field">
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-legitimate" id="btn-mark-legitimate">
+            <i data-lucide="user-check"></i>
+            <span>MARK LEGITIMATE</span>
+          </button>
+          <button class="btn btn-escalate" id="btn-escalate-incident">
+            <i data-lucide="shield-x"></i>
+            <span>ESCALATE INCIDENT</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PRE-REGISTER VISITOR MODAL -->
+    <div id="visitor-modal" class="modal-overlay hidden">
+      <div class="modal-card modal-sm">
+        <div class="modal-header">
+          <div class="flex-row">
+            <i data-lucide="user-plus" class="icon-blue"></i>
+            <h3>Pre-Register Visitor Pass</h3>
+          </div>
+          <button class="modal-close-btn" id="btn-close-visitor-modal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <form id="visitor-form" class="modal-form">
+          <div class="form-group">
+            <label>Visitor Full Name</label>
+            <input type="text" id="form-vis-name" required placeholder="e.g. Alex Rivera" class="input-field">
+          </div>
+          <div class="form-group">
+            <label>Unit Number</label>
+            <input type="text" id="form-vis-unit" required placeholder="e.g. A-402" class="input-field">
+          </div>
+          <div class="form-group">
+            <label>Resident Host Name</label>
+            <input type="text" id="form-vis-host" placeholder="e.g. Dr. Sarah Jenkins" class="input-field">
+          </div>
+          <div class="form-group">
+            <label>Vehicle License Plate (Optional)</label>
+            <input type="text" id="form-vis-plate" placeholder="e.g. NY-4591" class="input-field">
+          </div>
+          <div class="modal-form-actions">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-visitor">Cancel</button>
+            <button type="submit" class="btn btn-primary">Register Visitor Pass</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- FLOATING AI ASSISTANT WIDGET -->
+    <div id="ai-assistant-widget" class="ai-widget-container">
+      <button id="btn-toggle-ai-widget" class="ai-widget-btn">
+        <i data-lucide="sparkles" class="icon-purple"></i>
+        <span>AI Security Assistant</span>
+      </button>
+
+      <div id="ai-widget-drawer" class="ai-drawer hidden">
+        <div class="ai-drawer-header">
+          <div class="flex-row">
+            <i data-lucide="sparkles" class="icon-purple"></i>
+            <div>
+              <h4>SentinelAI SOC Assistant</h4>
+              <span class="sub-text">Read-Only Database Intelligence</span>
+            </div>
+          </div>
+          <button id="btn-close-ai-drawer" class="modal-close-btn">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="ai-drawer-messages" id="ai-chat-messages">
+          <div class="chat-msg bot">
+            <p>Hello Guard. I am your SentinelAI Security Assistant. Ask me to summarize active alerts, query specific cameras, or check resident activity.</p>
+          </div>
+        </div>
+        <form id="ai-chat-form" class="ai-drawer-input">
+          <input type="text" id="ai-chat-input" placeholder="Ask about alerts, cameras, or events..." class="input-field">
+          <button type="submit" class="btn btn-primary"><i data-lucide="send"></i></button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
