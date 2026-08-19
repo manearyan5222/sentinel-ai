@@ -15,15 +15,16 @@ app = FastAPI(
     description="SentinelAI — AI-Powered CCTV Security Awareness & Incident Intelligence Platform."
 )
 
-# Enable CORS for Next.js frontend and local file protocols
+# Configure CORS with explicit origins & development regex
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_origin_regex=".*",
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origin_regex=r"^(http://localhost(:\d+)?|http://127\.0\.0\.1(:\d+)?|file://.*)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Include Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["Authentication & RBAC"])
