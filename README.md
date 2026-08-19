@@ -1,113 +1,164 @@
-# SentinelAI: Smarter CCTV. Faster Security Response.
+<div align="center">
 
-> **Residential CCTV AI Alerting & Guard Decision Platform**  
-> Analyzes live video streams to detect people, track identities, score contextual risk, and dispatch real-time alerts to security guards with clear triage protocols and optional Google Gemini AI intelligence analysis.
+# 🛡️ SentinelAI
 
----
+### Intelligent CCTV Security Awareness & Guard Triage Platform
 
-## Key Philosophy: Human-in-the-Loop Alerting
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-00599C?style=for-the-badge&logo=pytorch&logoColor=white)](https://ultralytics.com/)
+[![Google Gemini AI](https://img.shields.io/badge/Google_Gemini-API_v1.5-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://aistudio.google.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-SentinelAI is an **alerting platform**, NOT an autonomous judge. It flags elevated risks for human review and **never automatically labels someone a criminal**. Guards receive actionable alerts designed around the **5-Second UX Rule** to make fast, informed decisions (Mark Legitimate or Escalate).
+*SentinelAI turns everyday residential CCTV into real-time security awareness — detecting loitering, computing transparent 0–100 risk context, and empowering guards with 5-second decision triage.*
 
----
+[Explore Platform](#-quick-start-guide) • [Architecture](#-system-architecture) • [Risk Engine](#-deterministic-risk-engine-0100) • [Gemini AI Setup](#-optional-google-gemini-ai-layer)
 
-## Google Gemini AI Integration (Optional & Zero-Crash)
-
-SentinelAI integrates a free-tier **Google Gemini API** intelligence layer as a non-blocking decision-support assistant.
-
-* **Event-Driven Analysis**: Gemini is **never** called on continuous CCTV video frames. YOLOv8, Centroid Tracking, and the 0-100 Risk Engine continue to run locally in real-time.
-* **Strict Human-in-the-Loop Safeguards**: Prompts explicitly forbid declaring someone a criminal, inferring intent from appearance, or making law-enforcement decisions.
-* **Database Caching**: AI explanations are saved in SQLite so duplicate requests for the same alert do not re-call Gemini.
-* **Optional & Standalone**: If `GEMINI_API_KEY` is omitted, SentinelAI operates normally in `AI: DISABLED` mode without crashing.
-
-### Gemini AI Setup Steps
-
-1. Get a free API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Create or open the file `backend/.env`.
-3. Set your API key in Windows Command Prompt:
-   ```cmd
-   echo GEMINI_API_KEY=your_actual_api_key_here > backend\.env
-   ```
-4. Start SentinelAI normally via `start.bat`.
-5. Open the SOC dashboard (`http://localhost:3000`), click any alert, and click **`Generate AI Analysis`** or ask questions in the **AI Security Assistant** chat drawer.
+</div>
 
 ---
 
-## High-Level Architecture
+## 🌟 Overview & Core Philosophy
+
+> [!IMPORTANT]
+> **Human-in-the-Loop Guarantee**: SentinelAI is a decision-support assistance layer, NOT an autonomous judge. It flags elevated security risks for human verification and **never automatically labels anyone a criminal**.
+
+Residential security systems record terabytes of unread video every day while motion sensors spam guards with false alarms from swaying trees and pets. 
+
+**SentinelAI** solves this by converting raw RTSP camera streams into structured spatial intelligence:
+- **5-Second UX Triage Rule**: Presents instant WHO, WHERE, WHEN, WHAT, WHY, and WHAT TO DO context.
+- **Deterministic 0–100 Risk Engine**: Calculates transparent risk scores from spatial boundary breaches, dwell duration, and credential checks.
+- **Optional Gemini AI Layer**: Generates human-readable incident summaries and verification checklists without blocking real-time local computer vision.
+
+---
+
+## ⚡ Key Capabilities
+
+| Feature | Description |
+| :--- | :--- |
+| 📹 **Multi-Stream Vision** | Ingests simultaneous RTSP feeds, webcams, or local video files across perimeter fences, gates, and lobbies. |
+| 🎯 **YOLOv8 + Centroid Tracking** | Detects human entities and assigns persistent track IDs (`Track #0104`) to compute exact loitering trajectories. |
+| 📊 **0–100 Contextual Risk Engine** | Transparent rule-based risk scoring with zero black-box magic. |
+| ⚡ **5-Second Protocol Triage** | Instant modal interface providing actionable guard protocols (`MARK LEGITIMATE` or `ESCALATE INCIDENT`). |
+| 🤖 **Google Gemini AI Assistant** | Non-blocking LLM assistant for natural language incident summaries and security Q&A. |
+| 🔄 **Real-Time WebSockets** | Zero-latency event broadcast from FastAPI backend directly to Next.js SOC interface. |
+| 🚀 **Zero-Docker Windows Native** | Runs natively on Windows 10/11 using standard local terminal commands (`python`, `npm`). |
+
+---
+
+## 🏗️ System Architecture
+
+```
+                                  SENTINELAI PIPELINE
+                                  
+  ┌─────────────────┐      ┌──────────────────────────┐      ┌─────────────────────────┐
+  │  RTSP / CCTV    │ ───► │  OpenCV + YOLOv8 Tracker │ ───► │ 0–100 Context Risk      │
+  │  Camera Feeds   │      │  Centroid Person Tracking│      │ Spatial/Temporal Engine │
+  └─────────────────┘      └──────────────────────────┘      └────────────┬────────────┘
+                                                                          │
+  ┌─────────────────┐      ┌──────────────────────────┐                   │
+  │ Security Guard  │ ◄─── │ Next.js 14 SOC Dashboard │ ◄─────────────────┘
+  │ 5s Triage Action│      │ Real-Time WebSocket Push │      Real-Time Event Stream
+  └────────┬────────┘      └────────────┬─────────────┘
+           │                            │
+           ▼                            ▼
+  ┌─────────────────┐      ┌──────────────────────────┐
+  │ Decision Audit  │      │ Google Gemini AI Layer   │ (Optional Intelligence
+  │ Saved to SQLite │      │ Non-Blocking Summary API │  Support Analysis)
+  └─────────────────┘      └──────────────────────────┘
+```
+
+### Repository Structure
 
 ```
 sentinel-ai/
-├── frontend/             # Next.js 14, React, Tailwind CSS, Lucide Icons, Recharts
-│   ├── app/              # App router pages (SOC Grid, Alerts, Visitors, Analytics)
-│   ├── components/       # SOCHeader, CameraFeedCard, AlertTriageModal, AIChatAssistant, VisitorTrackerTable, Analytics
-│   ├── hooks/            # useAlertWebSocket (Live push updates)
-│   └── lib/              # API clients, TypeScript types, utilities
-├── backend/              # Python FastAPI, SQLAlchemy, WebSockets, OpenCV, Ultralytics YOLO
-│   ├── app/ai/           # Hardware Device Manager (CPU/GPU), YOLO Detector, Centroid Tracker, Risk Engine, Gemini Service
-│   ├── app/api/          # REST endpoints (Cameras, Alerts, Visitors, Analytics, Telemetry, AI Layer, WebSockets)
-│   ├── app/database/     # SQLite database session & base configuration
-│   ├── app/models/       # SQLAlchemy models (Camera, AuthorizedPerson, DetectionEvent, Alert)
-│   ├── seed_demo.py      # SQLite database seeding script
-│   └── generate_demo_video.py # Synthetic CCTV security video generator
-├── sample_data/          # Local demo MP4 video storage
-├── start.bat             # Windows one-click startup batch script
+├── frontend/                 # Next.js 14 App Router UI (TypeScript, Tailwind CSS, Lucide)
+│   ├── app/                  # App routes (SOC Grid, Alerts, Visitors, Analytics)
+│   ├── components/           # UI Components & Landing Page Sections
+│   ├── hooks/                # WebSocket hooks for live alert updates
+│   └── lib/                  # REST API client & TypeScript interfaces
+├── backend/                  # Python FastAPI Backend & Vision Pipeline
+│   ├── app/ai/               # YOLO Detector, Centroid Tracker, Risk Engine, Gemini Service
+│   ├── app/api/              # REST Endpoints & WebSocket Server
+│   ├── app/database/         # SQLite SQLAlchemy session configuration
+│   ├── app/models/           # Camera, Alert, Event, and AuthorizedPerson ORM schemas
+│   ├── seed_demo.py          # Database seeder script
+│   └── generate_demo_video.py# Synthetic CCTV security video generator
+├── sample_data/              # Local demo MP4 video storage
+├── start.bat                 # One-click Windows startup script
 └── README.md
 ```
 
 ---
 
-## Features & Highlights
+## 📐 Deterministic Risk Engine (0–100)
 
-1. **Strict Zero Containerization**: Runs natively on Windows 10/11 using standard local terminal commands (`python`, `npm`).
-2. **Hardware Fallback Acceleration**: Automatically detects NVIDIA CUDA GPUs; gracefully falls back to CPU execution with status indicator (`AI Device: CPU` or `GPU`).
-3. **Contextual Risk Scoring Engine (0–100)**:
-   - Unrecognized Person: `+25`
-   - Restricted Zone Access: `+30`
-   - Extended Dwell Time (>15s): `+15`
-   - No Visitor Pre-Registration Pass: `+20`
-   - Risk levels: `LOW` (0–29), `MODERATE` (30–49), `ELEVATED` (50–74), `HIGH` (75–100).
-4. **5-Second UX Rule Triage Modal + Gemini AI Analysis**:
-   - **WHO**: Target entity identification & identity type.
-   - **WHERE**: Camera & zone location.
-   - **WHEN**: Timestamp & dwell duration.
-   - **WHAT**: Detailed detection narrative.
-   - **WHY**: Contextual risk scoring breakdown rules.
-   - **WHAT TO DO**: Actionable protocol recommendation.
-   - **AI ANALYSIS**: Structured summary, risk explanation, verification checklist, recommended action, and uncertainty notes.
-5. **Real-Time WebSockets**: Live event and alert broadcast from Python backend directly to Next.js SOC interface.
+SentinelAI evaluates risk transparently based on enforceable spatial and temporal rules:
+
+### Risk Rule Factors
+
+| Rule Factor | Risk Point Addition | Description |
+| :--- | :---: | :--- |
+| **Unrecognized Person** | `+25 PTS` | Subject has no matching resident face/card profile in database. |
+| **Restricted Perimeter Zone Breach** | `+30 PTS` | Subject crossed spatial polygon boundary into a restricted area. |
+| **Extended Dwell Duration (>15s)** | `+15 PTS` | Subject remained stationary or loitered beyond threshold time. |
+| **No Visitor Pre-Registration Pass** | `+20 PTS` | Subject has no active pre-registered visitor clearance badge. |
+
+### Priority Threshold Levels
+
+- 🟢 **LOW RISK (`0–29`)**: Normal routine activity. Logged for audit.
+- 🟡 **MODERATE RISK (`30–49`)**: Minor anomaly. Monitor camera feed.
+- 🟠 **ELEVATED RISK (`50–74`)**: High loitering/unrecognized match. Alert dispatcher.
+- 🔴 **HIGH RISK (`75–100`)**: Immediate action required. Flagged for 5-second guard triage.
 
 ---
 
-## Local Windows Startup Guide
+## 🤖 Optional Google Gemini AI Layer
+
+> [!NOTE]
+> **Zero-Crash Standalone Operation**: Gemini AI is completely optional. If `GEMINI_API_KEY` is omitted, SentinelAI operates normally in `AI: DISABLED` mode without crashing.
+
+Gemini AI acts as a non-blocking assistant for security guards:
+- **Event-Driven Execution**: Gemini is **never** called on continuous video frames; it runs on-demand when a guard requests an incident summary.
+- **Database Caching**: Summaries are cached in SQLite so duplicate requests consume zero extra API calls.
+- **Strict Guardrails**: Prompts explicitly enforce non-accusatory, objective verification recommendations.
+
+### 🔑 Setting up Gemini AI Key
+
+1. Get a free API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Create or update `backend/.env`:
+   ```cmd
+   echo GEMINI_API_KEY=your_actual_api_key_here > backend\.env
+   ```
+3. Start SentinelAI normally. The AI status badge in the SOC Header will reflect `AI: ONLINE (GEMINI 1.5)`.
+
+---
+
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-* **Windows 10 / 11**
-* **Python 3.11+** installed and added to PATH
-* **Node.js 20+** & **npm** installed
+- **Windows 10 / 11**
+- **Python 3.11+** (added to system PATH)
+- **Node.js 20+ & npm**
 
 ---
 
-### Option A: Automatic One-Click Launch (`start.bat`)
+### Option A: Automatic One-Click Launch (Recommended)
 
-Double-click or run from Command Prompt:
+Simply run `start.bat` from Command Prompt or double-click it:
 
 ```cmd
 start.bat
 ```
 
-This script will automatically:
-1. Create the Python virtual environment (`backend/venv`).
-2. Install Python backend dependencies (`pip install -r backend/requirements.txt`).
-3. Generate the synthetic demo security MP4 video (`sample_data/demo_security.mp4`).
-4. Initialize and seed the SQLite database (`sentinel_ai.db`).
-5. Install Node.js frontend packages (`npm install`).
-6. Launch the FastAPI backend on `http://localhost:8000` and the Next.js SOC frontend on `http://localhost:3000`.
+`start.bat` automatically handles environment setup, dependency installation, synthetic video generation, SQLite database seeding, and service initialization!
 
 ---
 
-### Option B: Manual Terminal Commands
+### Option B: Manual Terminal Launch
 
-#### 1. Setup Backend
+#### 1. Start Python Backend
 ```cmd
 cd backend
 python -m venv venv
@@ -119,7 +170,7 @@ python seed_demo.py
 uvicorn app.main:app --reload --port 8000
 ```
 
-#### 2. Setup Frontend (New Terminal Window)
+#### 2. Start Next.js Frontend (Separate Terminal)
 ```cmd
 cd frontend
 npm install
@@ -128,10 +179,25 @@ npm run dev
 
 ---
 
-## Access Points
+## 🌐 Access Points
 
-* **SOC Guard UI Dashboard**: [http://localhost:3000](http://localhost:3000)
-* **Alert Center**: [http://localhost:3000/alerts](http://localhost:3000/alerts)
-* **Visitor Directory**: [http://localhost:3000/visitors](http://localhost:3000/visitors)
-* **Analytics**: [http://localhost:3000/analytics](http://localhost:3000/analytics)
-* **FastAPI Backend & Interactive OpenAPI Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+| Service | Access URL | Purpose |
+| :--- | :--- | :--- |
+| **Landing Page** | [http://localhost:3000](http://localhost:3000) | Commercial Product Showcase & Overview |
+| **SOC Guard Dashboard** | [http://localhost:3000/dashboard](http://localhost:3000/dashboard) | 4-Camera Live Grid & Real-time Stream |
+| **Alert Center** | [http://localhost:3000/alerts](http://localhost:3000/alerts) | Security Incident Log & 5s Triage Modal |
+| **Visitor Directory** | [http://localhost:3000/visitors](http://localhost:3000/visitors) | Resident & Pre-Registered Visitor Database |
+| **Analytics Workspace** | [http://localhost:3000/analytics](http://localhost:3000/analytics) | Operational Incident Charts & Metrics |
+| **FastAPI OpenAPI Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive REST API Documentation |
+
+---
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for details.
+
+<div align="center">
+
+**SentinelAI** — *Human-in-the-Loop Residential CCTV Intelligence*
+
+</div>
