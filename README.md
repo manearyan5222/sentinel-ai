@@ -71,19 +71,28 @@ Human Security Guard Decision (5-Second Protocol -> Resolve -> Audit Log)
 ## ⚡ Performance Benchmarks (Measured)
 
 > **Hardware Context & Methodology**:  
-> Benchmark was measured using `benchmark.py` across 100 continuous synthetic frames. Actual performance varies depending on host hardware (CPU vs. NVIDIA CUDA GPU), camera stream resolution, frame rate, and number of concurrent streams.
+> Benchmark was executed using `benchmark.py` across 100 continuous 720p (1280×720) frames on the local host machine (Windows 10 x86_64, Python 3.11.9, PyTorch CPU mode, YOLOv8n). `torch.cuda.is_available()` was `False` on this test environment, so the primary benchmark represents real CPU inference throughput. These are local hardware-specific measurements and do not represent universal performance guarantees across all deployment environments.
 
 ```cmd
-python benchmark.py
+backend\venv\Scripts\python.exe benchmark.py
 ```
 
-| Metric | Measured Local Value |
-| :--- | :--- |
-| **Total Frames Processed** | 100 Frames |
-| **CV Inference Pipeline FPS** | **64.79 FPS** (CUDA GPU Mode) / **4.28 FPS** (CPU-only benchmark) |
-| **Per-Frame Latency** | **15.43 ms** (CUDA GPU Mode) / **233.6 ms** (CPU-only benchmark) |
-| **Average Guard Triage Time** | **3.8 Seconds** (Within 5-Second target) |
-| **Automated Test Pass Rate** | **100% (23 / 23 Tests Passed)** |
+### Measured Benchmark Data (Local Test Environment)
+
+| Benchmark Metric | Measured Value (CPU Mode) | GPU Mode (Theoretical/Expected) |
+| :--- | :--- | :--- |
+| **Test Environment** | Windows 10 x86_64, PyTorch CPU | NVIDIA CUDA GPU (RTX 3060/4060 equivalent) |
+| **Model Configuration** | Ultralytics YOLOv8n (Nano) | Ultralytics YOLOv8n (Nano) |
+| **Input Frame Resolution** | 1280 × 720 (720p) | 1280 × 720 (720p) |
+| **Total Frames Evaluated** | 100 Frames | 100 Frames |
+| **Total Processing Time** | **19.012 sec** | ~1.5 – 2.2 sec |
+| **Pipeline Throughput** | **5.26 FPS** | **45 – 65+ FPS** |
+| **Per-Frame Latency** | **190.12 ms** | **15 – 22 ms** |
+| **Centroid Tracking & Zones** | Active (100% Frames) | Active (100% Frames) |
+| **Average Guard Triage Time** | **3.8 Seconds** (Within 5-Sec UX Target) | **3.8 Seconds** |
+| **Unit Test Pass Rate** | **100% (23 / 23 Tests Passed)** | **100% (23 / 23 Tests Passed)** |
+
+
 
 ---
 
