@@ -34,13 +34,14 @@ export function AlertTriageModal({ alert, onClose, onResolveAlert }: AlertTriage
   const riskLevel = alert.risk_level;
   const cameraName = alert.camera_name;
   const locationZone = alert.location_zone;
-  const timestamp = new Date(alert.timestamp || (alert as Alert).created_at).toLocaleTimeString();
+  const rawTimestamp = 'timestamp' in alert ? alert.timestamp : alert.created_at;
+  const timestamp = new Date(rawTimestamp).toLocaleTimeString();
   const identityType = alert.identity_type;
   const reasons = alert.risk_reasons || [];
-  const trackId = (alert as DetectionEvent).track_id || (alert as Alert).entity_label || 'Track #0104';
-  const dwellSeconds = (alert as DetectionEvent).dwell_time_seconds || (alert as Alert).dwell_time_seconds || 24;
+  const trackId = 'track_id' in alert ? alert.track_id : alert.entity_label || 'Track #0104';
+  const dwellSeconds = alert.dwell_time_seconds || 24;
 
-  const protocol = isAlertObj ? (alert as Alert).action_protocol : {
+  const protocol = isAlertObj ? alert.action_protocol : {
     who: `Unrecognized Person (${trackId})`,
     where: `${cameraName} (${locationZone})`,
     when: `${timestamp} (Dwell: ${dwellSeconds}s)`,
