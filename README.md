@@ -154,7 +154,7 @@ backend\venv\Scripts\python.exe backend/demo.py
 
 ---
 
-## 🛡️ Privacy, Safety & AI Ethics Framework
+## 🛡️ Privacy, Safety & Production Security Framework
 
 > **IMPORTANT DISCLAIMER**  
 > SentinelAI is a security-awareness and decision-support platform designed to assist authorized human security personnel. The system **does not determine criminal intent or guilt**, and **never autonomously classifies individuals as dangerous or criminal**. Alerts represent contextual indicators of elevated operational risk and must be reviewed by human operators before any action is taken.
@@ -163,11 +163,20 @@ backend\venv\Scripts\python.exe backend/demo.py
 * **Local Processing**: Video feeds are processed locally on-premise and never transmitted to external clouds.
 * **No Facial Profiling**: Operates on spatial bounding boxes, centroid dwell times, and opt-in badge/pass registries.
 
+### 🔒 Production Deployment Security Guidelines
+
+When transitioning from the demonstration environment to a production SOC deployment:
+
+1. **Disable Demo Mode**: Set `DEMO_MODE=false` in `backend/.env`.
+2. **Configure JWT Secret**: Generate and provide a cryptographically secure 32+ character string for `SECRET_KEY`. When `DEMO_MODE=false`, the server strictly refuses to start if `SECRET_KEY` is omitted.
+3. **Lock Down CORS**: Specify trusted frontend domain origins in `CORS_ORIGINS` (e.g. `https://soc.yourfacility.com`).
+4. **WebSocket & SSRF Protection**: All WebSocket channels require valid JWT authentication query tokens (`/ws/alerts?token=...`), and camera source URLs are filtered against intranet loopback/link-local SSRF vectors.
+
 ---
 
 ## 🧪 Automated Testing Suite
 
-Run the complete automated Pytest test suite (23 unit & integration tests):
+Run the complete automated Pytest test suite (39 unit, security, and integration tests):
 
 ```cmd
 backend\venv\Scripts\python.exe -m pytest backend/tests/ -v
@@ -178,3 +187,4 @@ backend\venv\Scripts\python.exe -m pytest backend/tests/ -v
 ## 📄 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+

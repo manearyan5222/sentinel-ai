@@ -7,10 +7,14 @@ import uuid
 import re
 import cv2
 from app.database.session import get_db
+from app.config import settings
 from app.models.camera import Camera
 from app.models.zone import Zone
 from app.models.audit import AuditLog
+from app.models.user import User
 from app.ai.stream_manager import CameraStreamProcessor
+from app.core.auth import require_role, get_current_user
+from app.core.security_validation import validate_camera_source
 
 router = APIRouter()
 
@@ -127,14 +131,25 @@ def get_cameras(db: Session = Depends(get_db)):
     return cameras
 
 @router.post("/cameras", response_model=CameraResponse)
-def create_camera(payload: CameraCreateRequest, db: Session = Depends(get_db)):
-    """Adds a new CCTV camera."""
+def create_camera(
+    payload: CameraCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["ADMIN", "SUPERVISOR"]))
+):
+    """Adds a new CCTV camera with SSRF validation (ADMIN/SUPERVISOR only)."""
+    stream_type = payload.stream_type.upper() if payload.stream_type else "DEMO"
+    
+    # SSRF & protocol validation (SEC-M02)
+    is_valid, error_msg = validate_camera_source(payload.source_path, stream_type, settings.DEMO_MODE)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=f"Invalid camera source: {error_msg}")
+
     cam_id = f"cam-{uuid.uuid4().hex[:4]}"
     camera = Camera(
         id=cam_id,
         name=payload.name,
         location_zone=payload.location_zone,
-        stream_type=payload.stream_type.upper() if payload.stream_type else "DEMO",
+        stream_type=stream_type,
         source_path=payload.source_path,
         status="ACTIVE",
         is_restricted_zone=payload.is_restricted_zone or False,
@@ -148,6 +163,8 @@ def create_camera(payload: CameraCreateRequest, db: Session = Depends(get_db)):
 
     audit = AuditLog(
         id=f"aud-{uuid.uuid4().hex[:8]}",
+        user_id=current_user.id if current_user else None,
+        username=current_user.username if current_user else "system",
         action="CAMERA_CREATE",
         resource_type="CAMERA",
         resource_id=cam_id,
@@ -167,11 +184,23 @@ def get_camera(camera_id: str, db: Session = Depends(get_db)):
     return camera
 
 @router.put("/cameras/{camera_id}", response_model=CameraResponse)
-def update_camera(camera_id: str, payload: CameraUpdateRequest, db: Session = Depends(get_db)):
-    """Updates camera configuration."""
+def update_camera(
+    camera_id: str,
+    payload: CameraUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["ADMIN", "SUPERVISOR"]))
+):
+    """Updates camera configuration with SSRF validation (ADMIN/SUPERVISOR only)."""
     camera = db.query(Camera).filter(Camera.id == camera_id).first()
     if not camera:
         raise HTTPException(status_code=404, detail="Camera not found.")
+
+    if payload.source_path is not None:
+        target_type = payload.stream_type.upper() if payload.stream_type else camera.stream_type
+        is_valid, error_msg = validate_camera_source(payload.source_path, target_type, settings.DEMO_MODE)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=f"Invalid camera source: {error_msg}")
+        camera.source_path = payload.source_path
 
     if payload.name is not None:
         camera.name = payload.name
@@ -179,8 +208,6 @@ def update_camera(camera_id: str, payload: CameraUpdateRequest, db: Session = De
         camera.location_zone = payload.location_zone
     if payload.stream_type is not None:
         camera.stream_type = payload.stream_type.upper()
-    if payload.source_path is not None:
-        camera.source_path = payload.source_path
     if payload.is_restricted_zone is not None:
         camera.is_restricted_zone = payload.is_restricted_zone
     if payload.status is not None:
@@ -194,6 +221,8 @@ def update_camera(camera_id: str, payload: CameraUpdateRequest, db: Session = De
 
     audit = AuditLog(
         id=f"aud-{uuid.uuid4().hex[:8]}",
+        user_id=current_user.id if current_user else None,
+        username=current_user.username if current_user else "system",
         action="CAMERA_UPDATE",
         resource_type="CAMERA",
         resource_id=camera.id,
@@ -205,14 +234,20 @@ def update_camera(camera_id: str, payload: CameraUpdateRequest, db: Session = De
     return camera
 
 @router.delete("/cameras/{camera_id}")
-def delete_camera(camera_id: str, db: Session = Depends(get_db)):
-    """Deletes a camera."""
+def delete_camera(
+    camera_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["ADMIN"]))
+):
+    """Deletes a camera (ADMIN only)."""
     camera = db.query(Camera).filter(Camera.id == camera_id).first()
     if not camera:
         raise HTTPException(status_code=404, detail="Camera not found.")
 
     audit = AuditLog(
         id=f"aud-{uuid.uuid4().hex[:8]}",
+        user_id=current_user.id if current_user else None,
+        username=current_user.username if current_user else "system",
         action="CAMERA_DELETE",
         resource_type="CAMERA",
         resource_id=camera.id,
@@ -224,13 +259,27 @@ def delete_camera(camera_id: str, db: Session = Depends(get_db)):
     return {"status": "success", "message": f"Camera {camera_id} deleted."}
 
 @router.post("/cameras/{camera_id}/test")
-def test_camera_connection(camera_id: str, db: Session = Depends(get_db)):
-    """Tests connection to the specified camera stream."""
+def test_camera_connection(
+    camera_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["ADMIN", "SUPERVISOR", "GUARD"]))
+):
+    """Tests connection to the specified camera stream with SSRF protection."""
     camera = db.query(Camera).filter(Camera.id == camera_id).first()
     if not camera:
         raise HTTPException(status_code=404, detail="Camera not found.")
 
     source = camera.source_path
+    
+    # Re-validate source before opening
+    is_valid, error_msg = validate_camera_source(source, camera.stream_type, settings.DEMO_MODE)
+    if not is_valid:
+        return {
+            "camera_id": camera_id,
+            "status": "BLOCKED",
+            "message": f"Connection blocked by SSRF policy: {error_msg}"
+        }
+
     is_ok = False
     msg = "Connected successfully"
 
@@ -256,6 +305,7 @@ def test_camera_connection(camera_id: str, db: Session = Depends(get_db)):
         "status": "ONLINE" if is_ok else "UNREACHABLE",
         "message": msg if is_ok else f"Failed to open video source: {msg}"
     }
+
 
 @router.get("/cameras/{camera_id}/stream")
 def stream_camera_feed(camera_id: str, db: Session = Depends(get_db)):

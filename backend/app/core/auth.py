@@ -12,8 +12,6 @@ from app.config import settings
 from app.database.session import get_db
 from app.models.user import User
 
-# Secret key from config or environment
-SECRET_KEY = os.getenv("SECRET_KEY", "sentinel-ai-super-secret-production-jwt-key-2026")
 security = HTTPBearer(auto_error=False)
 
 def hash_password(password: str, salt: Optional[str] = None) -> str:
@@ -50,7 +48,7 @@ def create_access_token(user_id: str, username: str, role: str, expires_delta_se
     encoded_payload = base64.urlsafe_b64encode(json.dumps(payload).encode('utf-8')).decode('utf-8').rstrip('=')
     
     signing_input = f"{encoded_header}.{encoded_payload}"
-    signature = hmac.new(SECRET_KEY.encode('utf-8'), signing_input.encode('utf-8'), hashlib.sha256).digest()
+    signature = hmac.new(settings.SECRET_KEY.encode('utf-8'), signing_input.encode('utf-8'), hashlib.sha256).digest()
     encoded_signature = base64.urlsafe_b64encode(signature).decode('utf-8').rstrip('=')
     
     return f"{signing_input}.{encoded_signature}"
@@ -64,7 +62,7 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
         encoded_header, encoded_payload, encoded_sig = parts
         
         signing_input = f"{encoded_header}.{encoded_payload}"
-        expected_sig = hmac.new(SECRET_KEY.encode('utf-8'), signing_input.encode('utf-8'), hashlib.sha256).digest()
+        expected_sig = hmac.new(settings.SECRET_KEY.encode('utf-8'), signing_input.encode('utf-8'), hashlib.sha256).digest()
         
         pad_len = (4 - len(encoded_sig) % 4) % 4
         actual_sig = base64.urlsafe_b64decode(encoded_sig + '=' * pad_len)
@@ -82,14 +80,11 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
-def get_current_user_optional(
-    auth: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: Session = Depends(get_db)
-) -> Optional[User]:
-    """Returns current authenticated User or None if unauthenticated."""
-    if not auth or not auth.credentials:
+def get_user_from_token(token: Optional[str], db: Session) -> Optional[User]:
+    """Validates a JWT token string directly and returns the User or None."""
+    if not token:
         return None
-    payload = decode_token(auth.credentials)
+    payload = decode_token(token)
     if not payload:
         return None
     user_id = payload.get("sub")
@@ -97,17 +92,30 @@ def get_current_user_optional(
         return None
     return db.query(User).filter(User.id == user_id, User.is_active == True).first()
 
+def get_current_user_optional(
+    auth: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Returns current authenticated User or None if unauthenticated."""
+    if not auth or not auth.credentials:
+        return None
+    return get_user_from_token(auth.credentials, db)
+
 def get_current_user(
     auth: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
-    """Enforces active authentication and returns User."""
+    """
+    Enforces active authentication and returns User.
+    In DEMO_MODE, permits fallback to demo administrator if unauthenticated.
+    In production (DEMO_MODE=False), strictly rejects unauthenticated requests with HTTP 401.
+    """
     user = get_current_user_optional(auth, db)
     if not user:
-        # For seamless portfolio demo mode, if database has default admin and no auth provided, permit demo guard
-        admin_user = db.query(User).filter(User.role == "ADMIN").first()
-        if admin_user:
-            return admin_user
+        if settings.DEMO_MODE:
+            admin_user = db.query(User).filter(User.role == "ADMIN").first()
+            if admin_user:
+                return admin_user
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication credentials were not provided or have expired.",
