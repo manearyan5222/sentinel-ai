@@ -68,29 +68,23 @@ Human Security Guard Decision (5-Second Protocol -> Resolve -> Audit Log)
 
 ---
 
-## ⚡ Performance Benchmarks (Measured)
+## ⚡ Local Performance Benchmark
 
-> **Hardware Context & Methodology**:  
-> Benchmark was executed using `benchmark.py` across 100 continuous 720p (1280×720) frames on the local host machine (Windows 10 x86_64, Python 3.11.9, PyTorch CPU mode, YOLOv8n). `torch.cuda.is_available()` was `False` on this test environment, so the primary benchmark represents real CPU inference throughput. These are local hardware-specific measurements and do not represent universal performance guarantees across all deployment environments.
+### Environment
+- **OS**: Windows 10 x86_64
+- **Model**: Ultralytics YOLOv8n (Nano)
+- **Resolution**: 1280×720 (720p)
+- **Frames**: 100
+- **Execution**: CPU
+- **CUDA**: False
 
-```cmd
-backend\venv\Scripts\python.exe benchmark.py
-```
+### Measured Results
+- **Processing Time**: 23.966 sec
+- **Average FPS**: 4.17 FPS
+- **Per-Frame Latency**: 239.66 ms
 
-### Measured Benchmark Data (Local Test Environment)
+> **Note**: These are local measurements on the test machine and should not be interpreted as universal performance guarantees. Expected performance varies by GPU and configuration; no GPU benchmark was performed on this machine.
 
-| Benchmark Metric | Measured Value (CPU Mode) | GPU Mode (Theoretical/Expected) |
-| :--- | :--- | :--- |
-| **Test Environment** | Windows 10 x86_64, PyTorch CPU | NVIDIA CUDA GPU (RTX 3060/4060 equivalent) |
-| **Model Configuration** | Ultralytics YOLOv8n (Nano) | Ultralytics YOLOv8n (Nano) |
-| **Input Frame Resolution** | 1280 × 720 (720p) | 1280 × 720 (720p) |
-| **Total Frames Evaluated** | 100 Frames | 100 Frames |
-| **Total Processing Time** | **19.012 sec** | ~1.5 – 2.2 sec |
-| **Pipeline Throughput** | **5.26 FPS** | **45 – 65+ FPS** |
-| **Per-Frame Latency** | **190.12 ms** | **15 – 22 ms** |
-| **Centroid Tracking & Zones** | Active (100% Frames) | Active (100% Frames) |
-| **Average Guard Triage Time** | **3.8 Seconds** (Within 5-Sec UX Target) | **3.8 Seconds** |
-| **Unit Test Pass Rate** | **100% (23 / 23 Tests Passed)** | **100% (23 / 23 Tests Passed)** |
 
 
 
