@@ -5,7 +5,7 @@
 
 [![CI Pipeline](https://github.com/manearyan5222/sentinel-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/manearyan5222/sentinel-ai/actions)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Next.js](https://img.shields.io/badge/Next.js-14.2.5-black.svg?logo=next.js&logoColor=white)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2.15-black.svg?logo=next.js&logoColor=white)](https://nextjs.org)
 [![YOLOv8](https://img.shields.io/badge/Ultralytics-YOLOv8-blue.svg)](https://docs.ultralytics.com)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -38,81 +38,52 @@ Human Security Guard Decision (5-Second Protocol -> Resolve -> Audit Log)
 
 ---
 
-## ✨ Key Platform Features
+## 🏗️ Feature Breakdown by Status
 
-### 1. Multi-Stream Computer Vision & Automatic Hardware Fallback
-* Ingests RTSP network streams, USB webcams, or synthetic demo video loops.
-* Automatically utilizes **NVIDIA CUDA GPU acceleration** via PyTorch, falling back seamlessly to optimized CPU execution.
+### ✅ Implemented Core Platform
+- **Multi-Stream Computer Vision**: Ingests RTSP network streams, USB webcams, or synthetic video loops with automatic CUDA GPU/CPU execution.
+- **Centroid Object Tracking**: Stable `TRACK-#XXXX` tracking across frame occlusions with precise wall-clock dwell timers.
+- **Spatial Polygon Zones**: Ray-casting point-in-polygon boundary checks against ground-contact foot coordinates.
+- **Weighted 0–100 Risk Engine**: Multi-dimensional scoring evaluating Zone (0–35), Authorization (0–30), Dwell (0–25), Time-of-Day (0–15), and Behavior (0–15).
+- **5-Second UX Triage Protocol**: Structured incident cards answering **WHO**, **WHERE**, **WHEN**, **WHAT**, **WHY**, and **WHAT TO DO**.
+- **Chronological Incident Timelines**: End-to-end incident lifecycle logging with millisecond timestamps.
+- **Pre-Registered Visitor Passes**: Whitelist registry with pass IDs (`VP-XXXX`), allowed zones, and digital QR codes.
+- **SOC Web Dashboard (12 Pages)**: Real-time UI for Live Monitoring, Alerts, Incidents, Visitors, Cameras, Analytics, Audit Logs, Settings, and Operator Login.
+- **Google Gemini AI Assistant**: Non-blocking AI incident briefs, guard verification checklists, and conversational log queries.
+- **Role-Based Access Control (RBAC)**: `GUARD`, `SUPERVISOR`, and `ADMIN` with PBKDF2-HMAC password hashing and JWT.
+- **Immutable Audit Trail**: Compliance logging for all logins, camera adjustments, visitor passes, and guard resolutions.
 
-### 2. Stable Centroid Object Tracking
-* Tracks subjects across consecutive frames with persistent `TRACK-#XXXX` identifiers.
-* Accurately accumulates dwell duration and maintains track state through brief visual occlusions.
+### 🎬 Demo Capabilities
+- **Reproducible Incident Lifecycle**: Single-command script (`demo.py`) demonstrating entry, dwell violation, risk computation, alert generation, AI briefing, guard triage, and audit logging.
+- **Synthetic Test Streams**: Offline video fallback loops allowing full offline demonstration without live RTSP cameras.
 
-### 3. Spatial Polygon Zone Engine
-* Supports administrator-defined polygon boundaries (e.g. *Server Room*, *Perimeter Fence Line*, *Concierge Desk*, *Staff Only*).
-* Executes ray-casting point-in-polygon checks on ground-contact foot coordinates.
+### 🔬 Experimental & Decision Support
+- **Gemini AI Conversational Assistant**: Natural language querying of active security logs. Operates strictly in decision-support mode (never performs autonomous enforcement).
+- **Graceful Offline Fallbacks**: System operates completely on deterministic rule logic if Gemini API is disabled, unavailable, or rate-limited.
 
-### 4. Explainable Contextual Risk Engine (0–100 Scale)
-Instead of arbitrary alert scores, SentinelAI evaluates events across 5 weighted dimensions:
-$$\text{Risk Score} = \min(100, \text{zone\_score} + \text{auth\_score} + \text{dwell\_score} + \text{temporal\_score} + \text{behavior\_score})$$
-
-| Severity Level | Score Range | Operational Meaning |
-| :--- | :--- | :--- |
-| **LOW** | 0 – 29 | Routine resident activity in public sectors |
-| **MEDIUM** | 30 – 59 | Expected guests or unverified visitors in common lobby |
-| **HIGH** | 60 – 79 | Off-hours presence or unauthorized sector access |
-| **CRITICAL** | 80 – 100 | Restricted boundary violation, server room intrusion, or prolonged loitering |
-
-*Every alert outputs a structured breakdown of contributing reasons.*
-
-### 5. 5-Second UX Alert Protocol
-* Present security guards with an actionable decision card in under 5 seconds:
-  - **WHO**: Entity identifier and identity registry match.
-  - **WHERE**: Camera name and monitored zone sector.
-  - **WHEN**: Event timestamp and exact dwell duration.
-  - **WHAT**: Plain-English description of the observed event.
-  - **WHY**: Bulleted rule factors that triggered the risk score.
-  - **WHAT TO DO**: Prescribed standard operating procedure (SOP).
-
-### 6. Chronological Incident Audit Timeline
-* Automatically generates a chronological timeline for every flagged event:
-  - `18:42:03` Person detected entering camera view
-  - `18:42:08` Subject crossed boundary into restricted zone
-  - `18:42:18` Dwell threshold exceeded (20s loitering)
-  - `18:42:19` Identity check: Authorization not found
-  - `18:42:20` Security Alert generated (Risk: 85/100)
-  - `18:42:27` Security guard acknowledged in SOC dashboard
-  - `18:43:02` Incident resolved with guard verification notes
-
-### 7. Digital Pre-Registered Visitor Pass System
-* Issues digital visitor passes with unique `VP-XXXX` pass IDs, designated host resident units, allowed zone restrictions, and QR pass codes.
-* Differentiates pre-registered guests from unannounced arrivals without accusatory classification.
-
-### 8. Google Gemini AI Layer (Decision-Support Only)
-* Generates concise, structured incident briefs and guard verification checklists.
-* Embedded **AI Security Assistant** floating drawer for natural language log queries (e.g. *"Summarize active alerts today"*).
-
-### 9. Role-Based Access Control & Immutable Audit Trail
-* Roles: `GUARD`, `SUPERVISOR`, `ADMIN` with PBKDF2-HMAC-SHA256 salted password hashing and JWT authentication.
-* Immutable audit logging tracks every camera change, pass generation, alert triage action, and incident resolution.
+### 🛣️ Future Roadmap
+- Multi-camera appearance re-identification (Re-ID) embedding matching across adjacent cameras.
+- ONNX Runtime and TensorRT edge packaging for NVIDIA Jetson hardware appliances.
+- External webhook dispatch integrations (PagerDuty, Twilio SMS, Slack).
 
 ---
 
 ## ⚡ Performance Benchmarks (Measured)
 
-Performance benchmark executed on standard x86-64 hardware across 100 continuous camera frames:
+> **Hardware Context & Methodology**:  
+> Benchmark was measured using `benchmark.py` across 100 continuous synthetic frames. Actual performance varies depending on host hardware (CPU vs. NVIDIA CUDA GPU), camera stream resolution, frame rate, and number of concurrent streams.
 
 ```cmd
 python benchmark.py
 ```
 
-| Metric | Measured Result |
+| Metric | Measured Local Value |
 | :--- | :--- |
 | **Total Frames Processed** | 100 Frames |
-| **CV Inference Pipeline FPS** | **64.79 FPS** |
-| **Average Per-Frame Latency** | **15.43 ms** |
-| **Average Guard Triage Time** | **3.8 Seconds** |
-| **False Alarm Reduction** | **92% vs. Raw Motion Sensors** |
+| **CV Inference Pipeline FPS** | **64.79 FPS** (CUDA GPU Mode) / **4.28 FPS** (CPU-only benchmark) |
+| **Per-Frame Latency** | **15.43 ms** (CUDA GPU Mode) / **233.6 ms** (CPU-only benchmark) |
+| **Average Guard Triage Time** | **3.8 Seconds** (Within 5-Second target) |
+| **Automated Test Pass Rate** | **100% (23 / 23 Tests Passed)** |
 
 ---
 
@@ -153,7 +124,7 @@ npm run dev
 
 ## 🎬 Reproducible Demo Mode
 
-SentinelAI provides a single-command reproducible demonstration scenario that simulates a complete incident lifecycle:
+SentinelAI provides a single-command reproducible demonstration scenario:
 
 ```cmd
 backend\venv\Scripts\python.exe backend/demo.py
@@ -175,6 +146,7 @@ backend\venv\Scripts\python.exe backend/demo.py
 | **Security Analytics** | `http://localhost:3000/analytics` | 24-hour risk trends, camera metrics & response speeds |
 | **Audit Trail Logs** | `http://localhost:3000/audit` | Searchable compliance log of all system actions |
 | **Settings & AI Ethics** | `http://localhost:3000/settings` | Risk calibration & Human-in-the-Loop ethics policy |
+| **Operator Login** | `http://localhost:3000/login` | Authentication portal for guards and supervisors |
 | **FastAPI OpenAPI Docs** | `http://localhost:8000/docs` | Interactive REST API documentation |
 
 ---
@@ -190,26 +162,12 @@ backend\venv\Scripts\python.exe backend/demo.py
 
 ---
 
-## 🧪 Testing Suite
+## 🧪 Automated Testing Suite
 
 Run the complete automated Pytest test suite (23 unit & integration tests):
 
 ```cmd
 backend\venv\Scripts\python.exe -m pytest backend/tests/ -v
-```
-
-```
-============================= test session starts =============================
-platform win32 -- Python 3.11.9, pytest-9.1.1
-collected 23 items
-
-backend/tests/test_api.py .......                                        [ 30%]
-backend/tests/test_auth.py ..                                            [ 39%]
-backend/tests/test_gemini.py .......                                     [ 69%]
-backend/tests/test_risk_engine.py ...                                    [ 82%]
-backend/tests/test_tracking.py ....                                      [100%]
-
-============================= 23 passed in 4.88s ==============================
 ```
 
 ---
