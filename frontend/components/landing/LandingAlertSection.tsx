@@ -23,8 +23,9 @@ export function LandingAlertSection() {
             <span className="text-blue-400 font-extrabold">guard decision response.</span>
           </h2>
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-            When an elevated risk is flagged, guards don't have time to scrub 10-minute video files. SentinelAI presents instant context: Who, Where, When, What, Why, and What To Do.
+            When an elevated risk is flagged, guards don&apos;t have time to scrub 10-minute video files. SentinelAI presents instant context: Who, Where, When, What, Why, and What To Do.
           </p>
+
         </div>
 
         {/* Triage Protocol Interactive Card Showcase */}

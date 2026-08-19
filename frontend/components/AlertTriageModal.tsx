@@ -8,10 +8,11 @@ import { ShieldAlert, UserCheck, AlertTriangle, Clock, MapPin, ShieldX, HelpCirc
 interface AlertTriageModalProps {
   alert: Alert | DetectionEvent | null;
   onClose: () => void;
-  onResolveAlert: (alertId: string, status: 'LEGITIMATE' | 'ESCALATED', notes: string) => void;
+  onResolveAlert?: (alertId: string, status: 'LEGITIMATE' | 'ESCALATED', notes: string) => void;
+  onAction?: (alertId: string, status: string, notes?: string) => void;
 }
 
-export function AlertTriageModal({ alert, onClose, onResolveAlert }: AlertTriageModalProps) {
+export function AlertTriageModal({ alert, onClose, onResolveAlert, onAction }: AlertTriageModalProps) {
   const [guardNotes, setGuardNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<AIExplanation | null>(null);
@@ -64,10 +65,15 @@ export function AlertTriageModal({ alert, onClose, onResolveAlert }: AlertTriage
 
   const handleAction = async (status: 'LEGITIMATE' | 'ESCALATED') => {
     setIsSubmitting(true);
-    await onResolveAlert(alertId, status, guardNotes);
+    if (onResolveAlert) {
+      await onResolveAlert(alertId, status, guardNotes);
+    } else if (onAction) {
+      await onAction(alertId, status, guardNotes);
+    }
     setIsSubmitting(false);
     onClose();
   };
+
 
   const getRiskHeaderColor = (level: string) => {
     switch (level) {

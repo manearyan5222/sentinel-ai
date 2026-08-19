@@ -344,3 +344,8 @@ export async function queryAIChat(message: string): Promise<{ answer: string; re
     };
   }
 }
+
+// Aliases for component imports
+export const sendAIChat = queryAIChat;
+export const explainAlert = explainAlertAI;
+

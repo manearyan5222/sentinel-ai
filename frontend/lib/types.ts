@@ -93,7 +93,8 @@ export interface DetectionEvent {
   dwell_time_seconds: number;
 }
 
-export type AlertStatus = 'NEW' | 'ACKNOWLEDGED' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE' | 'LEGITIMATE' | 'ESCALATED';
+export type AlertStatus = 'NEW' | 'ACTIVE' | 'ACKNOWLEDGED' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE' | 'LEGITIMATE' | 'ESCALATED';
+
 
 export interface AIExplanation {
   summary: string;

@@ -163,12 +163,13 @@ export default function AlertCenterPage() {
 
                 <div className="flex flex-col items-end gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800">
                   <span className={`px-2.5 py-1 rounded text-xs font-mono font-bold ${
-                    alert.status === 'NEW' || alert.status === 'ACTIVE' ? 'bg-rose-600 text-white animate-pulse' :
+                    (alert.status === 'NEW' || alert.status === 'ACTIVE' || alert.status === 'ESCALATED') ? 'bg-rose-600 text-white animate-pulse' :
                     alert.status === 'INVESTIGATING' ? 'bg-amber-600 text-white' :
                     'bg-slate-800 text-slate-300'
                   }`}>
                     {alert.status}
                   </span>
+
                   <span className="text-xs text-blue-400 font-semibold group-hover:underline">
                     Inspect 5s Protocol →
                   </span>
