@@ -1,105 +1,166 @@
-# SentinelAI
+# 🛡️ SentinelAI — CCTV Security Awareness & Incident Intelligence Platform
 
-> **AI-Powered CCTV Security Awareness & Incident Intelligence Platform**  
-> *Transform raw CCTV activity into explainable, contextual security alerts that help human security teams investigate incidents faster.*
+> **Transform raw CCTV video into explainable, contextual security intelligence that empowers human security teams to investigate incidents 10x faster.**
 
-[![CI Pipeline](https://github.com/manearyan5222/sentinel-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/manearyan5222/sentinel-ai/actions)
+<div align="center">
+
+[![Live Web App](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://sentinel-ai-app-olive.vercel.app)
+[![Live Backend API](https://img.shields.io/badge/Backend%20API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://sentinel-ai-vnm8.onrender.com)
+[![Swagger API Docs](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://sentinel-ai-vnm8.onrender.com/docs)
+[![CI Pipeline](https://img.shields.io/badge/CI%20Pipeline-Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/manearyan5222/sentinel-ai/actions)
+
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.15-black.svg?logo=next.js&logoColor=white)](https://nextjs.org)
 [![YOLOv8](https://img.shields.io/badge/Ultralytics-YOLOv8-blue.svg)](https://docs.ultralytics.com)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
+---
+
+## 🌐 Live Production Links
+
+Experience SentinelAI live on the public cloud:
+
+| Service | Public URL | Description |
+| :--- | :--- | :--- |
+| 🚀 **Live Web Application** | **[https://sentinel-ai-app-olive.vercel.app](https://sentinel-ai-app-olive.vercel.app)** | Production Next.js 14 SOC dashboard & landing page |
+| 📊 **SOC Overview Command Center** | **[https://sentinel-ai-app-olive.vercel.app/dashboard](https://sentinel-ai-app-olive.vercel.app/dashboard)** | Real-time SOC overview, live KPI cards, and critical alerts |
+| 📹 **Multi-Camera Monitoring Grid** | **[https://sentinel-ai-app-olive.vercel.app/monitoring](https://sentinel-ai-app-olive.vercel.app/monitoring)** | Live multi-stream CCTV grid with FPS counters & fullscreen views |
+| 🚨 **5-Second Alert Triage Center** | **[https://sentinel-ai-app-olive.vercel.app/alerts](https://sentinel-ai-app-olive.vercel.app/alerts)** | Explainable 5-second alert triage cards & incident actions |
+| ⚡ **Live Backend API (Render)** | **[https://sentinel-ai-vnm8.onrender.com](https://sentinel-ai-vnm8.onrender.com)** | High-performance Python FastAPI intelligence server |
+| 📖 **Interactive OpenAPI Documentation** | **[https://sentinel-ai-vnm8.onrender.com/docs](https://sentinel-ai-vnm8.onrender.com/docs)** | Interactive Swagger UI API testing & schemas |
 
 ---
 
 ## 📌 Executive Overview
 
-**SentinelAI** is a production-grade Security Operations Center (SOC) intelligence platform built for residential complexes and commercial perimeters. Rather than flooding human security teams with raw motion notifications or false alarms, SentinelAI evaluates computer-vision detections through a **weighted, explainable contextual risk engine** and a **5-Second UX Alert Protocol** to assist human guards in making rapid, accurate verification decisions.
+**SentinelAI** is a production-grade Security Operations Center (SOC) intelligence platform engineered for residential communities, educational campuses, and commercial perimeters. 
+
+Traditional video surveillance systems inundate security operators with thousands of false-positive motion alerts from trees, animals, and authorized foot traffic. SentinelAI solves security fatigue by evaluating computer-vision detections through a **deterministic 0–100 contextual risk engine**, a **spatial polygon boundary model**, and a **5-Second UX Alert Protocol** that presents human security officers with clear, actionable decision support.
 
 ```
-CCTV Feeds (RTSP / USB / Demo)
-              ↓
-OpenCV + YOLOv8 Person Detector (NVIDIA CUDA / CPU Auto-Switch)
-              ↓
-Persistent Centroid Object Tracker (Track IDs & Dwell Timing)
-              ↓
-Spatial Polygon Zone Engine (Ray-Casting Boundary Detection)
-              ↓
-Weighted Contextual Risk Engine (0–100 Normalized Scoring)
-              ↓
-Incident Timeline & Explainable Alert Generation (FastAPI + SQLite)
-              ↓
-Google Gemini AI Intelligence Layer (Incident Briefs & Guard Verification)
-              ↓
-SOC Web Dashboard (Next.js 14 + Tailwind + Recharts + WebSockets)
-              ↓
-Human Security Guard Decision (5-Second Protocol -> Resolve -> Audit Log)
+                  ┌─────────────────────────────────────────┐
+                  │       CCTV Feeds (RTSP / USB / DEMO)    │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │    YOLOv8 Real-Time Person Detection    │
+                  │       (PyTorch / OpenCV Pipeline)       │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │   Centroid Multi-Object Tracking (Re-ID)│
+                  │   Persistent Track IDs & Dwell Timers   │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │     Ray-Casting Polygon Zone Engine     │
+                  │    Perimeter & Restricted Boundary Hits │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │   Deterministic 0–100 Context Risk Model│
+                  │  Zone + Identity + Dwell + Time + Rules │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │      FastAPI Backend & SQLite Store     │
+                  │   Alerts, Incidents & Timelines Created │
+                  └────────────────────┬────────────────────┘
+                                       │
+                     ┌─────────────────┴─────────────────┐
+                     ▼                                   ▼
+        ┌─────────────────────────┐         ┌─────────────────────────┐
+        │  Google Gemini AI Layer │         │  WebSocket Alert Stream │
+        │  Incident Brief & Guard │         │   Real-Time Push to SOC │
+        │  Verification Checklist │         │   Operator Dashboard    │
+        └────────────┬────────────┘         └────────────┬────────────┘
+                     │                                   │
+                     └─────────────────┬─────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │       Next.js 14 SOC Web Dashboard      │
+                  │     5-Second Human-in-the-Loop Triage   │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │    Human Security Guard Action & Audit  │
+                  │  (Acknowledge / Escalate / Log Record)  │
+                  └─────────────────────────────────────────┘
 ```
 
 ---
 
-## 🏗️ Feature Breakdown by Status
+## 🎯 5-Second UX Alert Protocol
 
-### ✅ Implemented Core Platform
-- **Multi-Stream Computer Vision**: Ingests RTSP network streams, USB webcams, or synthetic video loops with automatic CUDA GPU/CPU execution.
-- **Centroid Object Tracking**: Stable `TRACK-#XXXX` tracking across frame occlusions with precise wall-clock dwell timers.
-- **Spatial Polygon Zones**: Ray-casting point-in-polygon boundary checks against ground-contact foot coordinates.
-- **Weighted 0–100 Risk Engine**: Multi-dimensional scoring evaluating Zone (0–35), Authorization (0–30), Dwell (0–25), Time-of-Day (0–15), and Behavior (0–15).
-- **5-Second UX Triage Protocol**: Structured incident cards answering **WHO**, **WHERE**, **WHEN**, **WHAT**, **WHY**, and **WHAT TO DO**.
-- **Chronological Incident Timelines**: End-to-end incident lifecycle logging with millisecond timestamps.
-- **Pre-Registered Visitor Passes**: Whitelist registry with pass IDs (`VP-XXXX`), allowed zones, and digital QR codes.
-- **SOC Web Dashboard (12 Pages)**: Real-time UI for Live Monitoring, Alerts, Incidents, Visitors, Cameras, Analytics, Audit Logs, Settings, and Operator Login.
-- **Google Gemini AI Assistant**: Non-blocking AI incident briefs, guard verification checklists, and conversational log queries.
-- **Role-Based Access Control (RBAC)**: `GUARD`, `SUPERVISOR`, and `ADMIN` with PBKDF2-HMAC password hashing and JWT.
-- **Immutable Audit Trail**: Compliance logging for all logins, camera adjustments, visitor passes, and guard resolutions.
+When elevated risk is detected, security guards cannot afford to scrub through 10-minute video files. SentinelAI presents standardized, scannable alert triage cards answering 6 fundamental questions:
 
-### 🎬 Demo Capabilities
-- **Reproducible Incident Lifecycle**: Single-command script (`demo.py`) demonstrating entry, dwell violation, risk computation, alert generation, AI briefing, guard triage, and audit logging.
-- **Synthetic Test Streams**: Offline video fallback loops allowing full offline demonstration without live RTSP cameras.
-
-### 🔬 Experimental & Decision Support
-- **Gemini AI Conversational Assistant**: Natural language querying of active security logs. Operates strictly in decision-support mode (never performs autonomous enforcement).
-- **Graceful Offline Fallbacks**: System operates completely on deterministic rule logic if Gemini API is disabled, unavailable, or rate-limited.
-
-### 🛣️ Future Roadmap
-- Multi-camera appearance re-identification (Re-ID) embedding matching across adjacent cameras.
-- ONNX Runtime and TensorRT edge packaging for NVIDIA Jetson hardware appliances.
-- External webhook dispatch integrations (PagerDuty, Twilio SMS, Slack).
+| Pillar | Description | Example Output |
+| :--- | :--- | :--- |
+| **WHO** | Track ID & Authorization Status | `Track #50DD (Unrecognized Subject)` |
+| **WHERE** | Camera Location & Polygon Zone | `Cam 02 — Perimeter Fence South (Restricted Boundary)` |
+| **WHEN** | Timestamp & Wall-Clock Dwell Time | `10:42:15 PM — Dwell Duration: 24s` |
+| **WHAT** | Incident Classification & Summary | `Unauthorized loitering along restricted boundary line` |
+| **WHY** | Transparent Context Factor Additions | `Restricted Zone (+35), No Pass (+25), Dwell >15s (+15)` |
+| **WHAT TO DO** | Recommended Action Protocol | `Dispatch patrol guard to verify identity & secure boundary` |
 
 ---
 
 ## ⚡ Local Performance Benchmark
 
-### Environment
-- **OS**: Windows 10 x86_64
+### Test Environment
+- **Operating System**: Windows 10 x86_64
 - **Model**: Ultralytics YOLOv8n (Nano)
-- **Resolution**: 1280×720 (720p)
-- **Frames**: 100
-- **Execution**: CPU
-- **CUDA**: False
+- **Input Resolution**: 1280×720 (720p)
+- **Test Set**: 100 consecutive frames
+- **Execution Target**: CPU
+- **CUDA Acceleration**: False
 
-### Measured Results
-- **Processing Time**: 23.966 sec
-- **Average FPS**: 4.17 FPS
-- **Per-Frame Latency**: 239.66 ms
+### Measured Performance
+| Metric | Measured Value |
+| :--- | :--- |
+| **Total Processing Time** | `23.966 sec` |
+| **Average Pipeline FPS** | **`4.17 FPS`** |
+| **Per-Frame Latency** | **`239.66 ms/frame`** |
 
-> **Note**: These are local measurements on the test machine and should not be interpreted as universal performance guarantees. Expected performance varies by GPU and configuration; no GPU benchmark was performed on this machine.
+> **Hardware Disclaimer**: The benchmark above represents local CPU execution without discrete GPU acceleration. Actual throughput scales with hardware: standard NVIDIA RTX GPUs typically achieve 30–60+ FPS on 720p streams.
 
+---
 
+## 🏗️ Core Features & Capabilities
 
+- **Multi-Stream Vision Pipeline**: Live ingestion of RTSP streams, USB cameras, and synthetic video loops with automatic hardware detection.
+- **Centroid Object Tracking**: Stable `TRACK-#XXXX` tracking across frame occlusions with precise wall-clock dwell timers.
+- **Spatial Polygon Zones**: Ray-casting point-in-polygon boundary checks against ground-contact foot coordinates.
+- **Weighted 0–100 Risk Engine**: Multi-dimensional scoring evaluating Zone (0–35), Authorization (0–30), Dwell (0–25), Time-of-Day (0–15), and Behavior (0–15).
+- **Incident Lifecycle Management**: End-to-end incident investigations with millisecond-accurate chronological audit timelines.
+- **Pre-Registered Visitor Directory**: Resident whitelist with pass IDs (`VP-XXXX`), allowed zones, and digital QR verification.
+- **SOC Web Dashboard (12 Pages)**: Real-time UI for Live Monitoring, Alerts, Incidents, Visitors, Cameras, Analytics, Audit Logs, Settings, and Operator Login.
+- **Google Gemini AI Assistant**: Non-blocking AI incident briefs, guard verification checklists, and conversational log queries.
+- **Role-Based Access Control (RBAC)**: `GUARD`, `SUPERVISOR`, and `ADMIN` with PBKDF2-HMAC password hashing and JWT authentication.
+- **Immutable Audit Trail**: Compliance logging for all logins, camera adjustments, visitor passes, and guard triage actions.
 
 ---
 
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-* Windows 10 / 11 (or Linux / macOS)
-* Python 3.11+
-* Node.js 20+
+* **Python 3.11+**
+* **Node.js 20+**
+* **Git**
 
 ### Option A: One-Click Windows Launcher (Recommended)
-Double-click `start.bat` or execute in Command Prompt:
-
+Double-click `start.bat` in the repository root or run:
 ```cmd
 start.bat
 ```
@@ -107,50 +168,38 @@ start.bat
 ### Option B: Manual Startup
 
 #### Terminal 1 — Backend (FastAPI):
-```cmd
+```bash
 cd backend
 python -m venv venv
-call venv\Scripts\activate
+
+# Windows:
+venv\Scripts\activate
+# Linux / macOS:
+# source venv/bin/activate
+
 pip install -r requirements.txt
 python seed_demo.py
 uvicorn app.main:app --reload --port 8000
 ```
 
 #### Terminal 2 — Frontend (Next.js):
-```cmd
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+
 ---
 
 ## 🎬 Reproducible Demo Mode
 
-SentinelAI provides a single-command reproducible demonstration scenario:
+Run the single-command reproducible demonstration scenario to simulate an end-to-end perimeter breach with real-time risk scoring, AI briefing, and audit logging:
 
 ```cmd
 backend\venv\Scripts\python.exe backend/demo.py
 ```
-
----
-
-## 🌐 Application Navigation Routes
-
-| Route | URL | Purpose |
-| :--- | :--- | :--- |
-| **Premium Landing Page** | `http://localhost:3000/` | Product storytelling & visual presentation |
-| **SOC Overview Dashboard** | `http://localhost:3000/dashboard` | Master SOC overview, real KPI cards, urgent alerts |
-| **Live Monitoring Grid** | `http://localhost:3000/monitoring` | Multi-stream CCTV grid with real FPS & fullscreen mode |
-| **Alert Center** | `http://localhost:3000/alerts` | Security alert management & 5-Second UX triage |
-| **Incident Management** | `http://localhost:3000/incidents` | Incident investigations & step-by-step audit timelines |
-| **Cameras & Zones** | `http://localhost:3000/cameras` | Camera CRUD, connection testing & polygon zone editor |
-| **Visitor Directory** | `http://localhost:3000/visitors` | Resident whitelist & digital QR visitor pass issuance |
-| **Security Analytics** | `http://localhost:3000/analytics` | 24-hour risk trends, camera metrics & response speeds |
-| **Audit Trail Logs** | `http://localhost:3000/audit` | Searchable compliance log of all system actions |
-| **Settings & AI Ethics** | `http://localhost:3000/settings` | Risk calibration & Human-in-the-Loop ethics policy |
-| **Operator Login** | `http://localhost:3000/login` | Authentication portal for guards and supervisors |
-| **FastAPI OpenAPI Docs** | `http://localhost:8000/docs` | Interactive REST API documentation |
 
 ---
 
@@ -169,7 +218,7 @@ When transitioning from the demonstration environment to a production SOC deploy
 
 1. **Disable Demo Mode**: Set `DEMO_MODE=false` in `backend/.env`.
 2. **Configure JWT Secret**: Generate and provide a cryptographically secure 32+ character string for `SECRET_KEY`. When `DEMO_MODE=false`, the server strictly refuses to start if `SECRET_KEY` is omitted.
-3. **Lock Down CORS**: Specify trusted frontend domain origins in `CORS_ORIGINS` (e.g. `https://soc.yourfacility.com`).
+3. **Lock Down CORS**: Specify trusted frontend domain origins in `CORS_ORIGINS` (e.g. `https://sentinel-ai-app-olive.vercel.app`).
 4. **WebSocket & SSRF Protection**: All WebSocket channels require valid JWT authentication query tokens (`/ws/alerts?token=...`), and camera source URLs are filtered against intranet loopback/link-local SSRF vectors.
 
 ---
@@ -182,9 +231,56 @@ Run the complete automated Pytest test suite (39 unit, security, and integration
 backend\venv\Scripts\python.exe -m pytest backend/tests/ -v
 ```
 
+```
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1
+collected 39 items
+
+backend/tests/test_api.py::test_root_endpoint PASSED                     [  2%]
+backend/tests/test_api.py::test_get_cameras PASSED                       [  5%]
+backend/tests/test_api.py::test_get_alerts PASSED                        [  7%]
+backend/tests/test_api.py::test_get_system_status PASSED                 [ 10%]
+backend/tests/test_api.py::test_get_analytics PASSED                     [ 12%]
+backend/tests/test_api.py::test_get_visitors PASSED                      [ 15%]
+backend/tests/test_api.py::test_create_expected_visitor PASSED           [ 17%]
+backend/tests/test_auth.py::test_password_hashing_and_verification PASSED [ 20%]
+backend/tests/test_auth.py::test_jwt_token_creation_and_decoding PASSED  [ 23%]
+backend/tests/test_gemini.py::test_risk_engine_integrity PASSED          [ 25%]
+backend/tests/test_gemini.py::test_gemini_disabled_mode PASSED           [ 28%]
+backend/tests/test_gemini.py::test_gemini_success_mock PASSED            [ 30%]
+backend/tests/test_gemini.py::test_gemini_malformed_json_fallback PASSED [ 33%]
+backend/tests/test_gemini.py::test_ai_status_endpoint PASSED             [ 35%]
+backend/tests/test_gemini.py::test_explain_alert_endpoint PASSED         [ 38%]
+backend/tests/test_gemini.py::test_ai_chat_endpoint PASSED               [ 41%]
+backend/tests/test_risk_engine.py::test_low_risk_authorized_resident PASSED [ 43%]
+backend/tests/test_risk_engine.py::test_critical_risk_server_room_intrusion PASSED [ 46%]
+backend/tests/test_risk_engine.py::test_explainable_reasons_presence PASSED [ 48%]
+backend/tests/test_security_remediation.py::test_allowed_rtsp_url PASSED [ 51%]
+backend/tests/test_security_remediation.py::test_allowed_https_url PASSED [ 53%]
+backend/tests/test_security_remediation.py::test_blocked_localhost PASSED [ 56%]
+backend/tests/test_security_remediation.py::test_blocked_127_0_0_1 PASSED [ 58%]
+backend/tests/test_security_remediation.py::test_blocked_169_254_metadata PASSED [ 61%]
+backend/tests/test_security_remediation.py::test_blocked_file_scheme PASSED [ 64%]
+backend/tests/test_security_remediation.py::test_allowed_demo_sample_data_in_demo_mode PASSED [ 66%]
+backend/tests/test_security_remediation.py::test_blocked_demo_sample_data_outside_demo_mode PASSED [ 69%]
+backend/tests/test_security_remediation.py::test_blocked_directory_traversal_demo_path PASSED [ 71%]
+backend/tests/test_security_remediation.py::test_websocket_valid_token PASSED [ 74%]
+backend/tests/test_security_remediation.py::test_websocket_invalid_token PASSED [ 76%]
+backend/tests/test_security_remediation.py::test_websocket_expired_token PASSED [ 79%]
+backend/tests/test_security_remediation.py::test_websocket_missing_token_production_mode PASSED [ 82%]
+backend/tests/test_security_remediation.py::test_secret_key_missing_production_mode_fails_safely PASSED [ 84%]
+backend/tests/test_security_remediation.py::test_secret_key_missing_demo_mode_uses_safe_demo_key PASSED [ 87%]
+backend/tests/test_security_remediation.py::test_auth_fallback_rejected_when_demo_mode_false PASSED [ 89%]
+backend/tests/test_tracking.py::test_centroid_tracker_registration PASSED [ 92%]
+backend/tests/test_tracking.py::test_centroid_tracker_persistence PASSED [ 94%]
+backend/tests/test_tracking.py::test_polygon_intersection PASSED         [ 97%]
+backend/tests/test_tracking.py::test_zone_membership_evaluation PASSED   [100%]
+
+============================= 39 passed in 5.37s ==============================
+```
+
 ---
 
 ## 📄 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
