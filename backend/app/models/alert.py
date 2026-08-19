@@ -7,16 +7,19 @@ class Alert(Base):
 
     id = Column(String, primary_key=True, index=True)
     event_id = Column(String, ForeignKey("detection_events.id"), nullable=False)
-    camera_id = Column(String, ForeignKey("cameras.id"), nullable=False)
-    risk_score = Column(Integer, nullable=False)
-    risk_level = Column(String, nullable=False)
+    camera_id = Column(String, ForeignKey("cameras.id"), nullable=False, index=True)
+    risk_score = Column(Integer, nullable=False, index=True)
+    risk_level = Column(String, nullable=False) # LOW, MEDIUM, HIGH, CRITICAL
+    severity = Column(String, default="HIGH", nullable=False) # LOW, MEDIUM, HIGH, CRITICAL
     risk_reasons = Column(JSON, default=list)
     entity_label = Column(String, nullable=False)
     identity_type = Column(String, default="UNRECOGNIZED")
     dwell_time_seconds = Column(Integer, default=0)
-    status = Column(String, default="ACTIVE") # ACTIVE, LEGITIMATE, ESCALATED, RESOLVED
+    status = Column(String, default="NEW", nullable=False, index=True) # NEW, ACKNOWLEDGED, INVESTIGATING, RESOLVED, FALSE_POSITIVE, LEGITIMATE, ESCALATED
+    assigned_user_id = Column(String, nullable=True)
     guard_notes = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    acknowledged_at = Column(DateTime, nullable=True)
     resolved_at = Column(DateTime, nullable=True)
     action_protocol = Column(JSON, default=dict)
     snapshot_url = Column(String, nullable=True)

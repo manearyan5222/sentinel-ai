@@ -1,16 +1,47 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, ConfigDict, field_validator
+from typing import List, Optional
+import uuid
+import re
+import cv2
 from app.database.session import get_db
 from app.models.camera import Camera
+from app.models.zone import Zone
+from app.models.audit import AuditLog
 from app.ai.stream_manager import CameraStreamProcessor
-from pydantic import BaseModel
-from typing import List
-import os
 
 router = APIRouter()
 
-class CameraSchema(BaseModel):
+def sanitize_stream_url(url: str) -> str:
+    """Masks credentials in RTSP or HTTP stream URLs."""
+    if not url:
+        return url
+    return re.sub(r'(rtsp://|http://|https://)([^:]+):([^@]+)@', r'\1***:***@', url)
+
+class CameraCreateRequest(BaseModel):
+    name: str
+    location_zone: str
+    stream_type: Optional[str] = "DEMO" # DEMO, WEBCAM, RTSP
+    source_path: str
+    is_restricted_zone: Optional[bool] = False
+    sensitivity: Optional[str] = "MEDIUM"
+    description: Optional[str] = None
+
+class CameraUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    location_zone: Optional[str] = None
+    stream_type: Optional[str] = None
+    source_path: Optional[str] = None
+    is_restricted_zone: Optional[bool] = None
+    status: Optional[str] = None
+    is_enabled: Optional[bool] = None
+    sensitivity: Optional[str] = None
+    description: Optional[str] = None
+
+class CameraResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     name: str
     location_zone: str
@@ -19,15 +50,26 @@ class CameraSchema(BaseModel):
     status: str
     is_restricted_zone: bool
     active_tracks_count: int
+    fps: float
+    sensitivity: str
+    is_enabled: bool
+    description: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    @field_validator('source_path', mode='after')
+    @classmethod
+    def mask_credentials(cls, v: str) -> str:
+        return sanitize_stream_url(v)
 
-@router.get("/cameras", response_model=List[CameraSchema])
+class StreamTestRequest(BaseModel):
+    stream_type: str
+    source_path: str
+
+@router.get("/cameras", response_model=List[CameraResponse])
 def get_cameras(db: Session = Depends(get_db)):
+    """Returns all configured cameras."""
     cameras = db.query(Camera).all()
     if not cameras:
-        # Return fallback list if database is freshly initialized
+        # Initial fallback
         return [
             Camera(
                 id="cam-01",
@@ -38,6 +80,9 @@ def get_cameras(db: Session = Depends(get_db)):
                 status="ACTIVE",
                 is_restricted_zone=False,
                 active_tracks_count=2,
+                fps=30.0,
+                sensitivity="MEDIUM",
+                is_enabled=True
             ),
             Camera(
                 id="cam-02",
@@ -48,6 +93,9 @@ def get_cameras(db: Session = Depends(get_db)):
                 status="ACTIVE",
                 is_restricted_zone=True,
                 active_tracks_count=1,
+                fps=30.0,
+                sensitivity="HIGH",
+                is_enabled=True
             ),
             Camera(
                 id="cam-03",
@@ -58,6 +106,9 @@ def get_cameras(db: Session = Depends(get_db)):
                 status="ACTIVE",
                 is_restricted_zone=False,
                 active_tracks_count=3,
+                fps=30.0,
+                sensitivity="MEDIUM",
+                is_enabled=True
             ),
             Camera(
                 id="cam-04",
@@ -68,21 +119,169 @@ def get_cameras(db: Session = Depends(get_db)):
                 status="ACTIVE",
                 is_restricted_zone=False,
                 active_tracks_count=0,
+                fps=30.0,
+                sensitivity="LOW",
+                is_enabled=True
             ),
         ]
     return cameras
 
+@router.post("/cameras", response_model=CameraResponse)
+def create_camera(payload: CameraCreateRequest, db: Session = Depends(get_db)):
+    """Adds a new CCTV camera."""
+    cam_id = f"cam-{uuid.uuid4().hex[:4]}"
+    camera = Camera(
+        id=cam_id,
+        name=payload.name,
+        location_zone=payload.location_zone,
+        stream_type=payload.stream_type.upper() if payload.stream_type else "DEMO",
+        source_path=payload.source_path,
+        status="ACTIVE",
+        is_restricted_zone=payload.is_restricted_zone or False,
+        active_tracks_count=0,
+        fps=30.0,
+        sensitivity=payload.sensitivity or "MEDIUM",
+        is_enabled=True,
+        description=payload.description
+    )
+    db.add(camera)
+
+    audit = AuditLog(
+        id=f"aud-{uuid.uuid4().hex[:8]}",
+        action="CAMERA_CREATE",
+        resource_type="CAMERA",
+        resource_id=cam_id,
+        details={"name": camera.name, "zone": camera.location_zone}
+    )
+    db.add(audit)
+    db.commit()
+    db.refresh(camera)
+    return camera
+
+@router.get("/cameras/{camera_id}", response_model=CameraResponse)
+def get_camera(camera_id: str, db: Session = Depends(get_db)):
+    """Retrieves single camera metadata."""
+    camera = db.query(Camera).filter(Camera.id == camera_id).first()
+    if not camera:
+        raise HTTPException(status_code=404, detail="Camera not found.")
+    return camera
+
+@router.put("/cameras/{camera_id}", response_model=CameraResponse)
+def update_camera(camera_id: str, payload: CameraUpdateRequest, db: Session = Depends(get_db)):
+    """Updates camera configuration."""
+    camera = db.query(Camera).filter(Camera.id == camera_id).first()
+    if not camera:
+        raise HTTPException(status_code=404, detail="Camera not found.")
+
+    if payload.name is not None:
+        camera.name = payload.name
+    if payload.location_zone is not None:
+        camera.location_zone = payload.location_zone
+    if payload.stream_type is not None:
+        camera.stream_type = payload.stream_type.upper()
+    if payload.source_path is not None:
+        camera.source_path = payload.source_path
+    if payload.is_restricted_zone is not None:
+        camera.is_restricted_zone = payload.is_restricted_zone
+    if payload.status is not None:
+        camera.status = payload.status.upper()
+    if payload.is_enabled is not None:
+        camera.is_enabled = payload.is_enabled
+    if payload.sensitivity is not None:
+        camera.sensitivity = payload.sensitivity.upper()
+    if payload.description is not None:
+        camera.description = payload.description
+
+    audit = AuditLog(
+        id=f"aud-{uuid.uuid4().hex[:8]}",
+        action="CAMERA_UPDATE",
+        resource_type="CAMERA",
+        resource_id=camera.id,
+        details={"name": camera.name, "status": camera.status}
+    )
+    db.add(audit)
+    db.commit()
+    db.refresh(camera)
+    return camera
+
+@router.delete("/cameras/{camera_id}")
+def delete_camera(camera_id: str, db: Session = Depends(get_db)):
+    """Deletes a camera."""
+    camera = db.query(Camera).filter(Camera.id == camera_id).first()
+    if not camera:
+        raise HTTPException(status_code=404, detail="Camera not found.")
+
+    audit = AuditLog(
+        id=f"aud-{uuid.uuid4().hex[:8]}",
+        action="CAMERA_DELETE",
+        resource_type="CAMERA",
+        resource_id=camera.id,
+        details={"name": camera.name}
+    )
+    db.add(audit)
+    db.delete(camera)
+    db.commit()
+    return {"status": "success", "message": f"Camera {camera_id} deleted."}
+
+@router.post("/cameras/{camera_id}/test")
+def test_camera_connection(camera_id: str, db: Session = Depends(get_db)):
+    """Tests connection to the specified camera stream."""
+    camera = db.query(Camera).filter(Camera.id == camera_id).first()
+    if not camera:
+        raise HTTPException(status_code=404, detail="Camera not found.")
+
+    source = camera.source_path
+    is_ok = False
+    msg = "Connected successfully"
+
+    if camera.stream_type == "DEMO":
+        is_ok = True
+    elif camera.stream_type == "WEBCAM":
+        try:
+            cap = cv2.VideoCapture(int(source) if source.isdigit() else 0)
+            is_ok = cap.isOpened()
+            cap.release()
+        except Exception as e:
+            msg = str(e)
+    else: # RTSP / HTTP
+        try:
+            cap = cv2.VideoCapture(source)
+            is_ok = cap.isOpened()
+            cap.release()
+        except Exception as e:
+            msg = str(e)
+
+    return {
+        "camera_id": camera_id,
+        "status": "ONLINE" if is_ok else "UNREACHABLE",
+        "message": msg if is_ok else f"Failed to open video source: {msg}"
+    }
+
 @router.get("/cameras/{camera_id}/stream")
 def stream_camera_feed(camera_id: str, db: Session = Depends(get_db)):
+    """Streams live MJPEG camera feed with computer vision overlays and polygon zones."""
     camera = db.query(Camera).filter(Camera.id == camera_id).first()
+    zones = db.query(Zone).filter(Zone.camera_id == camera_id).all()
+    zones_data = [
+        {
+            "id": z.id,
+            "name": z.name,
+            "severity": z.severity,
+            "zone_type": z.zone_type,
+            "is_restricted": z.is_restricted,
+            "polygon_coordinates": z.polygon_coordinates
+        }
+        for z in zones
+    ]
+
     if not camera:
         name = "Perimeter Fence South" if camera_id == "cam-02" else "Main Gate CCTV"
         is_restricted = True if camera_id == "cam-02" else False
         source = "../sample_data/demo_security.mp4"
-        processor = CameraStreamProcessor(camera_id, name, source, is_restricted, "DEMO")
+        processor = CameraStreamProcessor(camera_id, name, source, is_restricted, "DEMO", zones_data)
     else:
         processor = CameraStreamProcessor(
-            camera.id, camera.name, camera.source_path, camera.is_restricted_zone, camera.stream_type
+            camera.id, camera.name, camera.source_path, camera.is_restricted_zone, camera.stream_type, zones_data
         )
 
     return StreamingResponse(
